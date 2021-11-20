@@ -33,6 +33,7 @@ class Login extends React.Component {
     getEmail(email);
   }
 
+  // Referência 'reg' url:https://pt.stackoverflow.com/questions/1386/express%C3%A3o-regular-para-valida%C3%A7%C3%A3o-de-e-mail
   validateInput() {
     const { password, email } = this.state;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
