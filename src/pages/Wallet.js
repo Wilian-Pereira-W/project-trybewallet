@@ -1,6 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import { fetchApi, addExpense } from '../actions/index';
+
+const n = 3;
+let id = 2 - n;
 
 class Wallet extends React.Component {
   constructor() {
@@ -21,6 +25,11 @@ class Wallet extends React.Component {
     this.registeredCurrency = this.registeredCurrency.bind(this);
   }
 
+  componentDidMount() {
+    const { getCurrencies, getCurrenciesState } = this.props;
+    getCurrencies(getCurrenciesState);
+  }
+
   handleChange(event) {
     const { name } = event.target;
     const { value } = event.target;
@@ -32,6 +41,16 @@ class Wallet extends React.Component {
 
   handleClick(event) {
     event.preventDefault();
+    id += 1;
+    const { getCurrenciesState, getExpense } = this.props;
+    const { value, method, description, currency, tag } = this.state;
+    getExpense({ id,
+      value,
+      description,
+      currency,
+      method,
+      tag,
+      exchangeRates: getCurrenciesState[0] });
   }
 
   expenseAmount() {
@@ -113,21 +132,33 @@ class Wallet extends React.Component {
 
   registeredCurrency() {
     const { currency } = this.state;
-    return (
-      <label htmlFor="registered-currency">
-        Moeda:
-        <select
-          data-testid="currency-input"
-          id="registered-currency"
-          name="currency"
-          onChange={ this.handleChange }
-          value={ currency }
-        >
-          <option value="BRL">BRL</option>
-          <option value="EUR">EUR</option>
-        </select>
-      </label>
-    );
+    const { getCurrenciesState } = this.props;
+    if (getCurrenciesState.length === 1) {
+      const todasMoedas = Object.keys(getCurrenciesState[0]);
+      const arraySemUSDT = todasMoedas.filter((moeda) => moeda !== 'USDT');
+      return (
+        <label htmlFor="registered-currency">
+          Moeda:
+          <select
+            data-testid="currency-input"
+            id="registered-currency"
+            name="currency"
+            onChange={ this.handleChange }
+            value={ currency }
+          >
+            {arraySemUSDT.map((moeda) => (
+              <option
+                key={ moeda }
+                value={ moeda }
+                data-testid={ moeda }
+              >
+                { moeda }
+              </option>
+            ))}
+          </select>
+        </label>
+      );
+    }
   }
 
   render() {
@@ -164,11 +195,20 @@ class Wallet extends React.Component {
 }
 
 Wallet.propTypes = {
+  getCurrencies: PropTypes.func.isRequired,
+  getCurrenciesState: PropTypes.arrayOf(PropTypes.object).isRequired,
   getEmail: PropTypes.string.isRequired,
+  getExpense: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   getEmail: state.user.email,
+  getCurrenciesState: state.wallet.currencies,
 });
 
-export default connect(mapStateToProps)(Wallet);
+const mapDispatchToProps = (dispatch) => ({
+  getCurrencies: (state) => dispatch(fetchApi(state)),
+  getExpense: (state) => dispatch(addExpense(state)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Wallet);
