@@ -12,9 +12,10 @@ class Wallet extends React.Component {
     this.state = {
       value: '',
       description: '',
-      currency: '',
-      method: '',
-      tag: '',
+      currency: 'USD',
+      method: 'Dinheiro',
+      tag: 'Alimentação',
+      total: 0,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -42,8 +43,14 @@ class Wallet extends React.Component {
   handleClick(event) {
     event.preventDefault();
     id += 1;
-    const { getCurrenciesState, getExpense } = this.props;
     const { value, method, description, currency, tag } = this.state;
+    const { getCurrenciesState, getExpense, getCurrencies } = this.props;
+    getCurrencies(getCurrenciesState);
+    const valores = Object.values(getCurrenciesState[0]);
+    const objMoeda = valores.find((valor) => valor.code === currency);
+    const valorDaMoeda = objMoeda.ask;
+    const valorConvertido = valorDaMoeda * value;
+    const valorConvertidoFormatado = parseFloat(valorConvertido.toFixed(2));
     getExpense({ id,
       value,
       description,
@@ -51,6 +58,17 @@ class Wallet extends React.Component {
       method,
       tag,
       exchangeRates: getCurrenciesState[0] });
+    this.setState({
+      value: '',
+      currency: '',
+      method: '',
+      tag: '',
+      description: '',
+    }, () => {
+      this.setState((previous) => ({
+        total: previous.total + valorConvertidoFormatado,
+      }));
+    });
   }
 
   expenseAmount() {
@@ -163,6 +181,7 @@ class Wallet extends React.Component {
 
   render() {
     const { getEmail } = this.props;
+    const { total } = this.state;
     return (
       <>
         <header>
@@ -170,7 +189,7 @@ class Wallet extends React.Component {
             <p>TrybeWallet</p>
             <span data-testid="email-field">{`Email: ${getEmail}`}</span>
             <div>
-              <span data-testid="total-field">0</span>
+              <span data-testid="total-field">{total.toFixed(2)}</span>
             </div>
             <span data-testid="header-currency-field">BRL</span>
           </div>
