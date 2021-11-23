@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchApi, addExpense } from '../actions/index';
+import Table from '../components/Table';
 
 const n = 3;
 let id = 2 - n;
@@ -193,21 +194,22 @@ class Wallet extends React.Component {
             </div>
             <span data-testid="header-currency-field">BRL</span>
           </div>
-        </header>
-        <form>
-          {this.expenseAmount()}
-          {this.expenseDescription()}
-          {this.registeredCurrency()}
-          {this.paymentMethod()}
-          {this.categoryForExpense()}
-          <button
-            type="submit"
-            onClick={ this.handleClick }
-          >
-            Adicionar despesa
+          <form>
+            {this.expenseAmount()}
+            {this.expenseDescription()}
+            {this.registeredCurrency()}
+            {this.paymentMethod()}
+            {this.categoryForExpense()}
+            <button
+              type="submit"
+              onClick={ this.handleClick }
+            >
+              Adicionar despesa
 
-          </button>
-        </form>
+            </button>
+          </form>
+        </header>
+        <Table />
       </>
     );
   }
